@@ -26,9 +26,9 @@ void ImageManipulator::zoomIn() {
 
 }
 
-void ImageManipulator::applyBlur() {
+void ImageManipulator::applyBlur(int startLine, int stopLine) {
 
-  for(int i = 0; i < this->linesNumber; i++) {
+  for(int i = startLine; i < stopLine; i++) {
       for(int j = 0; j < this->colunmNumber; j++) {
           this->imageMod[i][j].red = 0;
           this->imageMod[i][j].green = 0;
@@ -36,7 +36,7 @@ void ImageManipulator::applyBlur() {
       }
   }
 
-  for(int i = 1; i < this->linesNumber - 1; i++) {
+  for(int i = startLine; i < stopLine - 1; i++) {
       for(int j = 1; j < this->colunmNumber - 1; j++) {
           this->imageMod[i][j].red += (this->imageOriginal[i-1][j-1].red * 0);
           this->imageMod[i][j].green += (this->imageOriginal[i-1][j-1].green * 0);
@@ -126,7 +126,7 @@ void ImageManipulator::applyNegative() {
 
 }
 
-void ImageManipulator::imageReader(std::string fileName) {
+void ImageManipulator::imageReader(std::string fileName, bool original, bool continueReadMod) {
   FILE *imageFile;
   imageFile = fopen(fileName, "r+");
 
@@ -135,48 +135,96 @@ void ImageManipulator::imageReader(std::string fileName) {
 		printf("> Sorry, the file coundn't be opened");
 		return 1;
 	}
+  if(orignal) {
+    char PPMHeader[3];
+    fscanf( arquivo,"%c %i %i %i %i", &PPMHeader[0], &PPMHeader[1], &this->linesNumber, &this->colunmNumber, &this->maxPixelValue);
 
-  char PPMHeader[3];
-  fscanf( arquivo,"%c %i %i %i %i", &this->PPMHeader[0], &this->PPMHeader[1], &this->linesNumber, &this->colunmNumber, &this->maxPixelValue);
+    if(ehPPM[0] != "P" && ehPPM[1] == "3") {
+        /*
+        *   Caso a imagem não seja do formato PPM
+        * então o a função imprime uma mensagem na
+        * tela e retorna 1.
+        */
+        printf("Desculpe, mas o arquivo nao é do formato PPM.");
+        return 1;
+    }
 
-  if(ehPPM[0] != "P" && ehPPM[1] == "3") {
-      /*
-      *   Caso a imagem não seja do formato PPM
-      * então o a função imprime uma mensagem na
-      * tela e retorna 1.
-      */
-      printf("Desculpe, mas o arquivo nao é do formato PPM.");
-      return 1;
+    int auxPixel[4];  // a temporary array of int that store the values of the pixel that is been read
+    this->imageOriginal = new Vector<PixelBase>(this->linesNumber);
+    for( i = 0; i < this->linesNumber; i++) {
+        /*
+        *   Como imgP é uma matriz (pois os pixels possuem coordenadas)
+        * então é necessario fazer uso mais uma vez da alocação dinamica.
+        */
+        this->imageOriginal[i] = new Vector<PixelBase>(this->colunmNumber);
+        for(j = 0; j < col; j++) {
+            fscanf( arquivo, "%i %i %i", &auxPixel[0], &auxPixel[1], &auxPixel[2]);
+            imageOriginal[i][j].red = auxPixel[0];
+            imageOriginal[i][j].green = auxPixel[1];
+            imageOriginal[i][j].blue = auxPixel[2];
+        }
+    }
+
+    this->imageMod = new Vector<PixelBase>(this->linesNumber);
+    for( i = 0; i < lin; i++) {
+
+        this->imageMod[i] = new Vector<PixelBase>(this->colunmNumber);
+        for(j = 0; j < col; j++) {
+            this->imageMod[i][j].red = this->imageMod[i][j].red;
+            this->imageMod[i][j].green = this->imageMod[i][j].green;
+            this->imageMod[i][j].blue = this->imageMod[i][j].blue;
+        }
+    }
+
+    fclose(imageFile);
+  }
+  else {
+    int lineOfModToStart;
+    int lineOfModToFinish;
+    int auxLinesNumber;
+    int auxColunmNumber;
+    int auxMaxPixelValue
+    if(continueReadMod) {
+      lineOfModToStart = this->linesNumber/2;
+      lineOfModToFinish = this->linesNumber;
+    }
+    else {
+      lineOfModToStart = 0;
+      lineOfModToFinish = this->linesNumber/2;
+    }
+
+    char PPMHeader[3];
+    fscanf( arquivo,"%c %i %i %i %i", &PPMHeader[0], &PPMHeader[1], &auxLinesNumber, &auxColunmNumber, &auxMaxPixelValue);
+
+    int auxPixel[4];  // a temporary array of int that store the values of the pixel that is been read
+    this->imageMod = new Vector<PixelBase>(this->linesNumber);
+    for( i = lineOfModToStart; i < lineOfModToFinish; i++) {
+        /*
+        *   Como imgP é uma matriz (pois os pixels possuem coordenadas)
+        * então é necessario fazer uso mais uma vez da alocação dinamica.
+        */
+        this->imageOriginal[i] = new Vector<PixelBase>(this->colunmNumber);
+        for(j = 0; j < this->colunmNumber; j++) {
+            fscanf( arquivo, "%i %i %i", &auxPixel[0], &auxPixel[1], &auxPixel[2]);
+            imageOriginal[i][j].red = auxPixel[0];
+            imageOriginal[i][j].green = auxPixel[1];
+            imageOriginal[i][j].blue = auxPixel[2];
+        }
+    }
+
+    this->imageMod = new Vector<PixelBase>(this->linesNumber);
+    for( i = lineOfModToStart; i < lineOfModToFinish; i++) {
+        this->imageMod[i] = new Vector<PixelBase>(this->colunmNumber);
+        for(j = 0; j < this->colunmNumber; j++) {
+            this->imageMod[i][j].red = this->imageMod[i][j].red;
+            this->imageMod[i][j].green = this->imageMod[i][j].green;
+            this->imageMod[i][j].blue = this->imageMod[i][j].blue;
+        }
+    }
+
+    fclose(imageFile);
   }
 
-  int auxPixel[4];  // a temporary array of int that store the values of the pixel that is been read
-  this->imageOriginal = new Vector<PixelBase>(this->linesNumber);
-  for( i = 0; i < this->linesNumber; i++) {
-      /*
-      *   Como imgP é uma matriz (pois os pixels possuem coordenadas)
-      * então é necessario fazer uso mais uma vez da alocação dinamica.
-      */
-      this->imageOriginal[i] = new Vector<PixelBase>(this->colunmNumber);
-      for(j = 0; j < col; j++) {
-          fscanf( arquivo, "%i %i %i", &auxPixel[0], &auxPixel[1], &auxPixel[2]);
-          imageOriginal[i][j].red = auxPixel[0];
-          imageOriginal[i][j].green = auxPixel[1];
-          imageOriginal[i][j].blue = auxPixel[2];
-      }
-  }
-
-  this->imageMod = new Vector<PixelBase>(this->linesNumber);
-  for( i = 0; i < lin; i++) {
-
-      this->imageMod[i] = new Vector<PixelBase>(this->colunmNumber);
-      for(j = 0; j < col; j++) {
-          this->imageMod[i][j].red = this->imageMod[i][j].red;
-          this->imageMod[i][j].green = this->imageMod[i][j].green;
-          this->imageMod[i][j].blue = this->imageMod[i][j].blue;
-      }
-  }
-
-  fclose(imageFile);
 }
 
 void ImageManipulator::imageWriter(std::string fileName) {
@@ -248,36 +296,86 @@ void ImageManipulator::run(int argc, const char *argv) {
         case 1: // No caso do usuario querer binarizar a imagem.
             processId = fork();
             if(processId == 0) {  // chield process
-              this->
-              this->applyBin();
+              this->applyBin(0, this->linesNumber/2);
               this->imageWriter(this->fileOutName);
             }
             else {  // parent process
               int status;
+              this->applyBin(this->linesNumber/2, this->linesNumber);
               waitpid(processId, &status, 0);
-              this->applyBin();
+              this->linesNumber = this->linesNumber * 2;
               this->imageWriter(this->fileOutName);
             }
             break;
         case 2: // No caso do usuario querer aplicar o blur na imagem.
-            this->applyBlur(novoNomeImg);
-            lerPPM(novoNomeImg);
+            processId = fork();
+            if(processId == 0) {  // chield process
+              this->applyBlur(0, this->linesNumber/2);
+              this->imageWriter(this->fileOutName);
+            }
+            else {  // parent process
+              int status;
+              this->applyBlur(this->linesNumber/2, this->linesNumber);
+              waitpid(processId, &status, 0);
+              this->linesNumber = this->linesNumber * 2;
+              this->imageWriter(this->fileOutName);
+            }
             break;
         case 3: // No caso do usuario querer aplicar um shaperring na imagem.
-            this->applySharpe(novoNomeImg);
-            lerPPM(novoNomeImg);
+            processId = fork();
+            if(processId == 0) {  // chield process
+              this->applySharpe(0, this->linesNumber/2);
+              this->imageWriter(this->fileOutName);
+            }
+            else {  // parent process
+              int status;
+              this->applySharpe(this->linesNumber/2, this->linesNumber);
+              waitpid(processId, &status, 0);
+              this->linesNumber = this->linesNumber * 2;
+              this->imageWriter(this->fileOutName);
+            }
             break;
         case 4: // No caso do usuario querer aplicas bordas na imagem.
-            this->applyBorder(novoNomeImg);
-            lerPPM(novoNomeImg);
+            processId = fork();
+            if(processId == 0) {  // chield process
+              this->applyBorder(0, this->linesNumber/2);
+              this->imageWriter(this->fileOutName);
+            }
+            else {  // parent process
+              int status;
+              this->applyBorder(this->linesNumber/2, this->linesNumber);
+              waitpid(processId, &status, 0);
+              this->linesNumber = this->linesNumber * 2;
+              this->imageWriter(this->fileOutName);
+            }
             break;
         case 5: // No caso do usuario querer deixar a imagem em tons de cinza.
-            this->applyGrey(novoNomeImg);
-            lerPPM(novoNomeImg);
+            processId = fork();
+            if(processId == 0) {  // chield process
+              this->applyGrey(0, this->linesNumber/2);
+              this->imageWriter(this->fileOutName);
+            }
+            else {  // parent process
+              int status;
+              this->applyGrey(this->linesNumber/2, this->linesNumber);
+              waitpid(processId, &status, 0);
+              this->linesNumber = this->linesNumber * 2;
+              this->imageWriter(this->fileOutName);
+            }
             break;
         case 6: // No caso do usuario querer deixar a imagem em negativo.
             this->applyNegative(novoNomeImg);
-            lerPPM(novoNomeImg);
+            if(processId == 0) {  // chield process
+              this->applyNegative(0, this->linesNumber/2);
+              this->imageWriter(this->fileOutName);
+            }
+            else {  // parent process
+              int status;
+              this->applyNegative(this->linesNumber/2, this->linesNumber);
+              waitpid(processId, &status, 0);
+              this->linesNumber = this->linesNumber * 2;
+              this->imageWriter(this->fileOutName);
+            }
             break;
         case 7: // No caso do usuario querer uma redu��o de duas vezes na imagem.
             this->zoomIn(novoNomeImg);
