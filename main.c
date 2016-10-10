@@ -194,6 +194,9 @@ int main() {
                 lerPPM(novoNomeImg);
                 break;
             case 11: // Caso o usuario deseje sair do programa essa ser� o case usado.
+                free(arrayFilho);
+                free(nImg);
+                free(imgP);
                 return 0;
         }
 
