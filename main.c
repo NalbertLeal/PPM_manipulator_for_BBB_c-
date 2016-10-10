@@ -32,7 +32,7 @@ int main() {
     * a imagem for salva.
     */
 	char nomeImg[50], novoNomeImg[50];
-	printf("Write here the file name: (write the estension .ppm of the file) \n"); //esse printf pede ao usuario que digite o nome do arquivo a ser manipulado
+	printf("Digite o nome do arquivo: (coloque a extencao .ppm do arquivo) \n"); //esse printf pede ao usuario que digite o nome do arquivo a ser manipulado
 	scanf("%s", &nomeImg); //guarda na variavel nomeImg (que foi citada acima) o nome do arquivo que sera manipulado
 
     /*
@@ -51,7 +51,7 @@ int main() {
     * que a variavel novoNomeImg n�o ficar� sem valor.
     */
     do {
-        printf("\nWrite the name of the file out: (write the estension .ppm of the file) \n");
+        printf("\nQual o nome do arquivo de saida: (coloque a extencao .ppm do arquivo) \n");
         scanf("%s", &novoNomeImg);
 	} while(novoNomeImg == NULL);
 
@@ -72,19 +72,19 @@ int main() {
     while(sair != 1) {
 
         // Esse � o menu exibido ao usuario.
-        printf("\nWhat you want to do \n");
+        printf("\nOque voce deseja fazer? \n");
         printf( "+---------------------------------+\n"
-                "| (1)   binary,                    |\n"
+                "| (1)   binarizacao,               |\n"
                 "| (2)   blur,                      |\n"
                 "| (3)   shapering,                 |\n"
                 "| (4)   bordas,                    |\n"
                 "| (5)   tons de cinza,             |\n"
-                "| (6)   negative,                  |\n"
+                "| (6)   negativo,                  |\n"
                 "| (7)   zoom in,                   |\n"
                 "| (8)   zoom out,                  |\n"
                 "| (9)   rotacao anti-horario,      |\n"
                 "| (10)  rotacao horaria,           |\n"
-                "| (11)  out and save               |\n"
+                "| (11)  sair e salvar              |\n"
                 "+---------------------------------+\n");
         /* O proximo printf e scanf pergunta e pega o
         * numero correspondente a ac�o que o usuario
